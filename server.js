@@ -5,34 +5,23 @@ const path = require('path');
 
 const app = express();
 
+// Render automatically provides PORT
 const PORT = process.env.PORT || 3000;
 
-/* ================================
-   MIDDLEWARE
-================================ */
-
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type']
-}));
-
+// Middleware
+app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-/* ================================
-   DATABASE CONFIGURATION
-================================ */
+app.use(express.static(path.join(__dirname, 'public')));
 
 console.log('🚀 Starting server...');
 
-console.log('Database Host:', process.env.DB_HOST || 'Using fallback host');
-console.log('Database Name:', process.env.DB_NAME || 'defaultdb');
-console.log('Database User:', process.env.DB_USER || 'avnadmin');
+// ================================
+// DATABASE CONFIGURATION
+// ================================
 
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT || 24024),
+    port: Number(process.env.DB_PORT || 3306),
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
@@ -48,88 +37,43 @@ const pool = mysql.createPool({
     }
 }).promise();
 
-/* ================================
-   DATABASE CONNECTION TEST
-================================ */
+
+// ================================
+// TEST DATABASE CONNECTION
+// ================================
 
 async function testDatabaseConnection() {
     try {
         const connection = await pool.getConnection();
 
-        console.log('=================================');
-        console.log('✅ Connected to Aiven MySQL!');
-        console.log('=================================');
+        console.log('✅ Connected to Aiven MySQL successfully!');
 
         connection.release();
 
     } catch (error) {
 
-        console.error('=================================');
-        console.error('❌ DATABASE CONNECTION FAILED');
-        console.error('=================================');
+        console.error('❌ Database connection failed!');
+        console.error('Error Code:', error.code);
+        console.error('Error Message:', error.message);
 
-        console.error(error.message);
     }
 }
 
 testDatabaseConnection();
 
-/* ================================
-   ROUTES
-================================ */
 
-/* HOME */
-
-app.get('/', (req, res) => {
-
-    res.json({
-        message: 'User Management API is running',
-        endpoints: {
-            health: '/health',
-            users: '/api/users'
-        }
-    });
-
-});
+// ================================
+// ROUTES
+// ================================
 
 
-/* HEALTH CHECK */
-
-app.get('/health', async (req, res) => {
-
-    try {
-
-        await pool.query('SELECT 1');
-
-        res.status(200).json({
-            status: 'ok',
-            database: 'connected',
-            timestamp: new Date().toISOString()
-        });
-
-    } catch (error) {
-
-        res.status(500).json({
-            status: 'error',
-            database: 'disconnected',
-            error: error.message
-        });
-
-    }
-
-});
-
-
-/* ================================
-   GET ALL USERS
-================================ */
-
+// GET ALL USERS
 app.get('/api/users', async (req, res) => {
 
     try {
 
         const [rows] = await pool.query(
-            'SELECT id, name, email FROM users ORDER BY id DESC'
+            'SELECT * FROM users ORDER BY id DESC'
         );
 
         res.status(200).json({
@@ -139,7 +83,7 @@ app.get('/api/users', async (req, res) => {
 
     } catch (error) {
 
-        console.error('GET USERS ERROR:', error);
+        console.error('❌ GET Users Error:', error.message);
 
         res.status(500).json({
             success: false,
@@ -151,28 +95,14 @@ app.get('/api/users', async (req, res) => {
 });
 
 
-/* ================================
-   GET SINGLE USER
-================================ */
-
+// GET SINGLE USER
 app.get('/api/users/:id', async (req, res) => {
 
     try {
 
-        const id = Number(req.params.id);
-
-        if (!id) {
-
-            return res.status(400).json({
-                success: false,
-                error: 'Invalid user ID'
-            });
-
-        }
-
         const [rows] = await pool.query(
-            'SELECT id, name, email FROM users WHERE id = ?',
-            [id]
+            'SELECT * FROM users WHERE id = ?',
+            [req.params.id]
         );
 
         if (rows.length === 0) {
@@ -191,7 +121,7 @@ app.get('/api/users/:id', async (req, res) => {
 
     } catch (error) {
 
-        console.error('GET USER ERROR:', error);
+        console.error('❌ GET User Error:', error.message);
 
         res.status(500).json({
             success: false,
@@ -203,22 +133,15 @@ app.get('/api/users/:id', async (req, res) => {
 });
 
 
-/* ================================
-   CREATE USER
-================================ */
-
+// CREATE USER
 app.post('/api/users', async (req, res) => {
 
     try {
 
-        console.log('POST REQUEST BODY:', req.body);
-
         const name = req.body.name?.trim();
-        const email = req.body.email?.trim().toLowerCase();
+        const email = req.body.email?.trim();
 
-
-        /* VALIDATION */
-
+        // Validation
         if (!name || !email) {
 
             return res.status(400).json({
@@ -228,67 +151,36 @@ app.post('/api/users', async (req, res) => {
 
         }
 
-
-        /* EMAIL VALIDATION */
-
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        if (!emailPattern.test(email)) {
-
-            return res.status(400).json({
-                success: false,
-                error: 'Please enter a valid email address'
-            });
-
-        }
-
-
-        /* INSERT */
-
+        // Insert user
         const [result] = await pool.execute(
             'INSERT INTO users (name, email) VALUES (?, ?)',
             [name, email]
         );
 
-
-        console.log('✅ USER CREATED:', result.insertId);
-
+        console.log(`✅ New user created: ${name}`);
 
         res.status(201).json({
-
             success: true,
-
             id: result.insertId,
-
             message: 'User added successfully'
-
         });
 
     } catch (error) {
 
-        console.error('=================================');
-        console.error('INSERT USER ERROR');
-        console.error('=================================');
-
-        console.error(error);
-
+        console.error('❌ INSERT Error:', error.message);
 
         if (error.code === 'ER_DUP_ENTRY') {
 
             return res.status(409).json({
                 success: false,
-                error: 'This email already exists'
+                error: 'Email already exists'
             });
 
         }
 
-
         res.status(500).json({
-
             success: false,
-
             error: error.message
-
         });
 
     }
@@ -296,29 +188,13 @@ app.post('/api/users', async (req, res) => {
 });
 
 
-/* ================================
-   UPDATE USER
-================================ */
-
+// UPDATE USER
 app.put('/api/users/:id', async (req, res) => {
 
     try {
 
-        const id = Number(req.params.id);
-
         const name = req.body.name?.trim();
-        const email = req.body.email?.trim().toLowerCase();
-
-
-        if (!id) {
-
-            return res.status(400).json({
-                success: false,
-                error: 'Invalid user ID'
-            });
-
-        }
-
+        const email = req.body.email?.trim();
 
         if (!name || !email) {
 
@@ -329,16 +205,10 @@ app.put('/api/users/:id', async (req, res) => {
 
         }
 
-
         const [result] = await pool.execute(
-            `
-            UPDATE users
-            SET name = ?, email = ?
-            WHERE id = ?
-            `,
-            [name, email, id]
+            'UPDATE users SET name = ?, email = ? WHERE id = ?',
+            [name, email, req.params.id]
         );
-
 
         if (result.affectedRows === 0) {
 
@@ -349,36 +219,29 @@ app.put('/api/users/:id', async (req, res) => {
 
         }
 
+        console.log(`✅ User ${req.params.id} updated`);
 
         res.status(200).json({
-
             success: true,
-
             message: 'User updated successfully'
-
         });
 
     } catch (error) {
 
-        console.error('UPDATE USER ERROR:', error);
-
+        console.error('❌ UPDATE Error:', error.message);
 
         if (error.code === 'ER_DUP_ENTRY') {
 
             return res.status(409).json({
                 success: false,
-                error: 'This email already exists'
+                error: 'Email already exists'
             });
 
         }
 
-
         res.status(500).json({
-
             success: false,
-
             error: error.message
-
         });
 
     }
@@ -386,32 +249,15 @@ app.put('/api/users/:id', async (req, res) => {
 });
 
 
-/* ================================
-   DELETE USER
-================================ */
-
+// DELETE USER
 app.delete('/api/users/:id', async (req, res) => {
 
     try {
 
-        const id = Number(req.params.id);
-
-
-        if (!id) {
-
-            return res.status(400).json({
-                success: false,
-                error: 'Invalid user ID'
-            });
-
-        }
-
-
         const [result] = await pool.execute(
             'DELETE FROM users WHERE id = ?',
-            [id]
+            [req.params.id]
         );
-
 
         if (result.affectedRows === 0) {
 
@@ -422,26 +268,20 @@ app.delete('/api/users/:id', async (req, res) => {
 
         }
 
+        console.log(`🗑 User ${req.params.id} deleted`);
 
         res.status(200).json({
-
             success: true,
-
             message: 'User deleted successfully'
-
         });
 
     } catch (error) {
 
-        console.error('DELETE USER ERROR:', error);
-
+        console.error('❌ DELETE Error:', error.message);
 
         res.status(500).json({
-
             success: false,
-
             error: error.message
-
         });
 
     }
@@ -449,28 +289,54 @@ app.delete('/api/users/:id', async (req, res) => {
 });
 
 
-/* ================================
-   404 HANDLER
-================================ */
+// ================================
+// HEALTH CHECK
+// ================================
 
-app.use((req, res) => {
+app.get('/health', async (req, res) => {
 
-    res.status(404).json({
-        success: false,
-        error: 'Route not found'
-    });
+    try {
+
+        await pool.query('SELECT 1');
+
+        res.status(200).json({
+            status: 'healthy',
+            database: 'connected',
+            timestamp: new Date().toISOString()
+        });
+
+    } catch (error) {
+
+        res.status(503).json({
+            status: 'unhealthy',
+            database: 'disconnected',
+            error: error.message
+        });
+
+    }
 
 });
 
 
-/* ================================
-   START SERVER
-================================ */
+// ================================
+// FRONTEND
+// ================================
+
+app.get('/', (req, res) => {
+
+    res.sendFile(
+        path.join(__dirname, 'public', 'index.html')
+    );
+
+});
+
+
+// ================================
+// START SERVER
+// ================================
 
 app.listen(PORT, '0.0.0.0', () => {
 
-    console.log('=================================');
     console.log(`🚀 Server running on port ${PORT}`);
-    console.log('=================================');
 
 });
