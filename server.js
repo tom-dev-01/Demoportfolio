@@ -7,6 +7,10 @@ const app = express();
 
 // Render automatically provides PORT
 const PORT = process.env.PORT || 3000;
+// db.js or server.js
+// db.js or server.js
+// db.js or server.js
+const connectionString = process.env.DATABASE_URL;
 
 // Middleware
 app.use(cors());
