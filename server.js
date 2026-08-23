@@ -72,6 +72,28 @@ app.get('/api/users', async (req, res) => {
     }
 });
 
+// Add a new user
+app.post('/api/users', async (req, res) => {
+    try {
+        const { name, email } = req.body;
+        if (!name || !email) {
+            return res.status(400).json({ error: 'Name and email are required' });
+        }
+        const [result] = await pool.query(
+            'INSERT INTO users (name, email) VALUES (?, ?)',
+            [name, email]
+        );
+        res.json({ 
+            success: true, 
+            id: result.insertId,
+            message: 'User added successfully' 
+        });
+    } catch (err) {
+        console.error('Insert Error:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ Server running on port ${PORT}`);
 });
