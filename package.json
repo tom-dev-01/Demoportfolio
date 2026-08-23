@@ -4,7 +4,7 @@
   "description": "User dashboard with MySQL",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
     "postinstall": "npm rebuild"
   },
   "dependencies": {
@@ -12,10 +12,7 @@
     "mysql2": "^3.6.0",
     "cors": "^2.8.5"
   },
-"engines": {
-  "node": "18.x"
+  "engines": {
+    "node": "18.x"
+  }
 }
-}
-
-
-  
