@@ -5,10 +5,17 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
+    "postinstall": "npm rebuild"
   },
   "dependencies": {
     "express": "^4.18.2",
     "mysql2": "^3.6.0",
     "cors": "^2.8.5"
   }
+"engines": {
+  "node": "18.x"
 }
+}
+
+
+  
