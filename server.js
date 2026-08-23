@@ -5,13 +5,21 @@ const mysql = require('mysql2');
 const app = express();
 app.use(express.json());
 
+// ✅ Check if DATABASE_URL exists
+if (!process.env.DATABASE_URL) {
+    console.error('❌ DATABASE_URL environment variable is not set!');
+    console.error('Please set it in Render Dashboard → Environment');
+    process.exit(1);
+}
+
 // Create connection pool
 const pool = mysql.createPool(process.env.DATABASE_URL);
 
 // Test connection
 pool.getConnection((err, connection) => {
     if (err) {
-        console.error('❌ Database connection failed:', err);
+        console.error('❌ Database connection failed:', err.message);
+        console.error('Please check your DATABASE_URL in Render environment variables');
     } else {
         console.log('✅ Database connected successfully!');
         connection.release();
@@ -45,7 +53,6 @@ app.post('/users', (req, res) => {
             return res.status(500).json({ error: err.message });
         }
 
-        // Return the newly created user
         res.json({
             id: result.insertId,
             fullName: fullName,
