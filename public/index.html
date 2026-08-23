@@ -6,7 +6,6 @@
 
     <title>User Management Dashboard | Portfolio Project</title>
 
-    <!-- Professional Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -14,29 +13,21 @@
     <style>
         :root {
             --primary: #2563eb;
-            --primary-dark: #1d4ed8;
             --primary-light: #eff6ff;
-
             --success: #16a34a;
             --success-light: #f0fdf4;
-
             --danger: #dc2626;
             --danger-light: #fef2f2;
-
             --warning: #f59e0b;
             --warning-light: #fffbeb;
-
             --dark: #0f172a;
             --text: #334155;
             --muted: #64748b;
-
             --border: #e2e8f0;
             --background: #f8fafc;
             --white: #ffffff;
-
             --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
             --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-
             --radius: 16px;
         }
 
@@ -55,10 +46,6 @@
             min-height: 100vh;
         }
 
-        /* =========================
-           HEADER
-        ========================== */
-
         .navbar {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(12px);
@@ -72,7 +59,6 @@
             max-width: 1200px;
             margin: auto;
             padding: 18px 25px;
-
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -88,20 +74,12 @@
             width: 44px;
             height: 44px;
             border-radius: 12px;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
-            background: linear-gradient(
-                135deg,
-                var(--primary),
-                #7c3aed
-            );
-
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
             color: white;
             font-size: 20px;
-            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
         }
 
         .brand h2 {
@@ -123,10 +101,6 @@
             font-weight: 700;
         }
 
-        /* =========================
-           MAIN
-        ========================== */
-
         .container {
             max-width: 1200px;
             margin: auto;
@@ -141,7 +115,6 @@
             font-size: clamp(30px, 5vw, 45px);
             color: var(--dark);
             margin-bottom: 12px;
-            letter-spacing: -1px;
         }
 
         .hero h1 span {
@@ -152,12 +125,7 @@
             color: var(--muted);
             max-width: 650px;
             line-height: 1.7;
-            font-size: 15px;
         }
-
-        /* =========================
-           STATS
-        ========================== */
 
         .stats-grid {
             display: grid;
@@ -167,33 +135,23 @@
         }
 
         .stat-card {
-            background: var(--white);
+            background: white;
             border: 1px solid var(--border);
             padding: 22px;
             border-radius: var(--radius);
             box-shadow: var(--shadow-sm);
-
             display: flex;
             align-items: center;
             gap: 16px;
-
-            transition: 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow);
         }
 
         .stat-icon {
             width: 52px;
             height: 52px;
             border-radius: 14px;
-
             display: flex;
             justify-content: center;
             align-items: center;
-
             font-size: 22px;
         }
 
@@ -213,21 +171,16 @@
             font-size: 12px;
             text-transform: uppercase;
             color: var(--muted);
-            letter-spacing: 0.5px;
             margin-bottom: 5px;
         }
 
         .stat-card strong {
-            font-size: 25px;
+            font-size: 22px;
             color: var(--dark);
         }
 
-        /* =========================
-           CARDS
-        ========================== */
-
         .card {
-            background: var(--white);
+            background: white;
             border: 1px solid var(--border);
             border-radius: var(--radius);
             padding: 28px;
@@ -236,9 +189,6 @@
         }
 
         .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             margin-bottom: 22px;
         }
 
@@ -252,10 +202,6 @@
             color: var(--muted);
             margin-top: 5px;
         }
-
-        /* =========================
-           FORM
-        ========================== */
 
         .form-group {
             display: grid;
@@ -272,76 +218,42 @@
             left: 14px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 15px;
         }
 
         input {
             width: 100%;
             padding: 13px 14px 13px 42px;
-
             border: 1px solid var(--border);
             border-radius: 10px;
-
             font-family: inherit;
             font-size: 14px;
-
-            transition: 0.2s;
-            background: #fcfdff;
         }
 
         input:focus {
             outline: none;
             border-color: var(--primary);
-            background: white;
-
-            box-shadow:
-                0 0 0 4px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
         }
-
-        /* =========================
-           BUTTONS
-        ========================== */
 
         .btn {
             border: none;
             cursor: pointer;
-
             border-radius: 10px;
-
             padding: 12px 18px;
-
             font-family: inherit;
             font-weight: 700;
             font-size: 13px;
-
-            transition: 0.25s;
-
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 7px;
+            transition: 0.2s;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .btn-primary {
-            background: linear-gradient(
-                135deg,
-                var(--primary),
-                #4f46e5
-            );
-
+            background: linear-gradient(135deg, var(--primary), #4f46e5);
             color: white;
-
-            box-shadow:
-                0 6px 15px rgba(37, 99, 235, 0.25);
-        }
-
-        .btn-primary:hover {
-            box-shadow:
-                0 10px 20px rgba(37, 99, 235, 0.35);
         }
 
         .btn-warning {
@@ -359,10 +271,6 @@
             color: white;
         }
 
-        /* =========================
-           USER LIST
-        ========================== */
-
         .users-list {
             display: flex;
             flex-direction: column;
@@ -373,20 +281,11 @@
             border: 1px solid var(--border);
             padding: 18px;
             border-radius: 14px;
-
             display: flex;
             justify-content: space-between;
             align-items: center;
-
             gap: 20px;
-
-            transition: 0.25s;
-        }
-
-        .user-item:hover {
-            border-color: #bfdbfe;
-            background: #fafcff;
-            transform: translateY(-2px);
+            flex-wrap: wrap;
         }
 
         .user-info {
@@ -399,22 +298,13 @@
         .avatar {
             width: 46px;
             height: 46px;
-
             border-radius: 50%;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
             font-weight: 800;
             color: white;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    var(--primary),
-                    #7c3aed
-                );
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
         }
 
         .user-details {
@@ -426,7 +316,6 @@
         .user-name {
             color: var(--dark);
             font-weight: 700;
-            font-size: 14px;
         }
 
         .user-email {
@@ -435,21 +324,13 @@
         }
 
         .user-id {
-            display: inline-block;
-
-            margin-top: 5px;
-
-            width: fit-content;
-
             background: #f1f5f9;
             color: var(--muted);
-
             padding: 3px 9px;
-
             border-radius: 20px;
-
             font-size: 11px;
             font-weight: 700;
+            width: fit-content;
         }
 
         .user-actions {
@@ -457,25 +338,12 @@
             gap: 8px;
         }
 
-        .user-actions .btn {
-            padding: 9px 13px;
-            font-size: 12px;
-        }
-
-        /* =========================
-           EDIT FORM
-        ========================== */
-
         .edit-form {
             width: 100%;
-            margin-top: 15px;
-
+            margin-top: 10px;
             padding: 20px;
-
             background: #f8fafc;
-
             border: 1px solid var(--border);
-
             border-radius: 12px;
         }
 
@@ -483,24 +351,11 @@
             grid-template-columns: 1fr 1fr auto auto;
         }
 
-        /* =========================
-           STATES
-        ========================== */
-
         .loading,
         .empty-state {
             text-align: center;
             padding: 50px 20px;
             color: var(--muted);
-        }
-
-        .loading {
-            font-size: 14px;
-        }
-
-        .empty-icon {
-            font-size: 42px;
-            margin-bottom: 10px;
         }
 
         .error,
@@ -515,22 +370,16 @@
         .error {
             background: var(--danger-light);
             color: var(--danger);
-            border: 1px solid #fecaca;
         }
 
         .success {
             background: var(--success-light);
             color: var(--success);
-            border: 1px solid #bbf7d0;
         }
 
         .hidden {
             display: none !important;
         }
-
-        /* =========================
-           FOOTER
-        ========================== */
 
         footer {
             text-align: center;
@@ -543,44 +392,24 @@
             color: var(--primary);
         }
 
-        /* =========================
-           RESPONSIVE
-        ========================== */
-
         @media (max-width: 850px) {
 
             .stats-grid {
                 grid-template-columns: 1fr;
             }
 
-            .form-group {
-                grid-template-columns: 1fr;
-            }
-
+            .form-group,
             .edit-form .form-group {
                 grid-template-columns: 1fr;
             }
 
             .user-item {
-                align-items: flex-start;
                 flex-direction: column;
+                align-items: flex-start;
             }
-
-            .user-actions {
-                width: 100%;
-            }
-
-            .user-actions .btn {
-                flex: 1;
-            }
-
         }
 
         @media (max-width: 550px) {
-
-            .navbar-content {
-                padding: 15px;
-            }
 
             .portfolio-badge {
                 display: none;
@@ -593,30 +422,22 @@
             .card {
                 padding: 20px;
             }
-
         }
     </style>
 </head>
 
 <body>
 
-    <!-- NAVIGATION -->
-
     <nav class="navbar">
-
         <div class="navbar-content">
 
             <div class="brand">
-
-                <div class="brand-icon">
-                    👥
-                </div>
+                <div class="brand-icon">👥</div>
 
                 <div>
                     <h2>UserFlow</h2>
                     <span>Management Dashboard</span>
                 </div>
-
             </div>
 
             <div class="portfolio-badge">
@@ -624,130 +445,91 @@
             </div>
 
         </div>
-
     </nav>
 
 
-    <!-- MAIN CONTENT -->
-
     <main class="container">
 
-        <!-- HERO -->
-
         <section class="hero">
-
-            <h1>
-                Manage users <span>efficiently.</span>
-            </h1>
+            <h1>Manage users <span>efficiently.</span></h1>
 
             <p>
                 A modern user management dashboard demonstrating CRUD operations,
-                REST API integration, responsive UI design, and clean JavaScript
-                architecture.
+                REST API integration and responsive design.
             </p>
-
         </section>
 
-
-        <!-- STATISTICS -->
 
         <section class="stats-grid">
 
             <div class="stat-card">
-
-                <div class="stat-icon blue">
-                    👥
-                </div>
+                <div class="stat-icon blue">👥</div>
 
                 <div>
                     <h3>Total Users</h3>
                     <strong id="totalUsers">0</strong>
                 </div>
-
             </div>
 
-
             <div class="stat-card">
-
-                <div class="stat-icon green">
-                    ✓
-                </div>
+                <div class="stat-icon green">✓</div>
 
                 <div>
                     <h3>System Status</h3>
-                    <strong>Active</strong>
+                    <strong id="systemStatus">Checking...</strong>
                 </div>
-
             </div>
 
-
             <div class="stat-card">
-
-                <div class="stat-icon orange">
-                    ⚡
-                </div>
+                <div class="stat-icon orange">⚡</div>
 
                 <div>
                     <h3>API</h3>
-                    <strong>Connected</strong>
+                    <strong id="apiStatus">Checking...</strong>
                 </div>
-
             </div>
 
         </section>
 
 
-        <!-- ADD USER -->
-
         <section class="card">
 
             <div class="card-header">
-
-                <div>
-
-                    <h2>Add New User</h2>
-
-                    <p>
-                        Create a new user profile in the system.
-                    </p>
-
-                </div>
-
+                <h2>Add New User</h2>
+                <p>Create a new user profile in the system.</p>
             </div>
-
 
             <form id="addUserForm" class="form-group">
 
                 <div class="input-wrapper">
-
                     <span>👤</span>
 
                     <input
                         type="text"
                         id="nameInput"
                         placeholder="Full name"
+                        autocomplete="name"
                         required
                     >
-
                 </div>
 
 
                 <div class="input-wrapper">
-
                     <span>✉️</span>
 
                     <input
                         type="email"
                         id="emailInput"
                         placeholder="Email address"
+                        autocomplete="email"
                         required
                     >
-
                 </div>
 
 
                 <button
                     type="submit"
+                    id="addUserButton"
                     class="btn btn-primary"
                 >
                     + Add User
@@ -755,40 +537,22 @@
 
             </form>
 
-
             <div id="addMessage"></div>
 
         </section>
 
 
-        <!-- USERS -->
-
         <section class="card">
 
             <div class="card-header">
-
-                <div>
-
-                    <h2>User Directory</h2>
-
-                    <p>
-                        Manage existing users and their information.
-                    </p>
-
-                </div>
-
+                <h2>User Directory</h2>
+                <p>Manage existing users and their information.</p>
             </div>
 
-
-            <div
-                id="users-container"
-                class="users-list"
-            >
-
+            <div id="users-container" class="users-list">
                 <div class="loading">
                     Loading users...
                 </div>
-
             </div>
 
         </section>
@@ -796,63 +560,269 @@
     </main>
 
 
-    <!-- FOOTER -->
-
     <footer>
-
         Built with
         <strong>HTML • CSS • JavaScript • REST API</strong>
-
     </footer>
 
 
     <script>
 
-        const API_URL = '/api/users';
+        /* =========================================
+           IMPORTANT API CONFIGURATION
+        ========================================= */
+
+        /*
+         * OPTION 1:
+         * If frontend and backend are on SAME Render service:
+         */
+
+        const API_BASE_URL = '';
+
+        /*
+         * OPTION 2:
+         * If frontend is hosted separately,
+         * uncomment this and put your Render backend URL.
+         *
+         * Example:
+         *
+         * const API_BASE_URL =
+         * 'https://your-backend.onrender.com';
+         */
+
+        const API_URL = `${API_BASE_URL}/api/users`;
+
+        const HEALTH_URL = `${API_BASE_URL}/health`;
 
 
-        // FETCH USERS
+        /* =========================================
+           SAFE FETCH HELPER
+        ========================================= */
+
+        async function apiRequest(url, options = {}) {
+
+            const response = await fetch(url, {
+
+                ...options,
+
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(options.headers || {})
+                }
+
+            });
+
+
+            const contentType =
+                response.headers.get('content-type') || '';
+
+
+            let data;
+
+
+            if (contentType.includes('application/json')) {
+
+                data = await response.json();
+
+            } else {
+
+                const text = await response.text();
+
+                throw new Error(
+                    `Server returned an invalid response (${response.status}): ${text.substring(0, 150)}`
+                );
+
+            }
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    data.message ||
+                    `Request failed with status ${response.status}`
+                );
+
+            }
+
+
+            return data;
+
+        }
+
+
+        /* =========================================
+           ESCAPE HTML
+           Prevents broken HTML from user input
+        ========================================= */
+
+        function escapeHTML(value) {
+
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+
+        }
+
+
+        /* =========================================
+           SHOW MESSAGE
+        ========================================= */
+
+        function showMessage(message, type = 'success') {
+
+            const messageDiv =
+                document.getElementById('addMessage');
+
+
+            messageDiv.innerHTML = `
+                <div class="${type}">
+                    ${type === 'success' ? '✓' : '❌'}
+                    ${escapeHTML(message)}
+                </div>
+            `;
+
+
+            setTimeout(() => {
+
+                messageDiv.innerHTML = '';
+
+            }, 5000);
+
+        }
+
+
+        /* =========================================
+           CHECK API
+        ========================================= */
+
+        async function checkAPI() {
+
+            const apiStatus =
+                document.getElementById('apiStatus');
+
+            const systemStatus =
+                document.getElementById('systemStatus');
+
+
+            try {
+
+                const response =
+                    await fetch(HEALTH_URL);
+
+                if (!response.ok) {
+
+                    throw new Error('API unavailable');
+
+                }
+
+                const data =
+                    await response.json();
+
+
+                apiStatus.textContent =
+                    'Connected';
+
+
+                systemStatus.textContent =
+                    data.database === 'connected'
+                        ? 'Active'
+                        : 'Online';
+
+
+            } catch (error) {
+
+                console.error(
+                    'HEALTH CHECK ERROR:',
+                    error
+                );
+
+
+                apiStatus.textContent =
+                    'Offline';
+
+
+                systemStatus.textContent =
+                    'Unavailable';
+
+            }
+
+        }
+
+
+        /* =========================================
+           FETCH USERS
+        ========================================= */
 
         async function fetchUsers() {
 
             const container =
                 document.getElementById('users-container');
 
+
+            container.innerHTML = `
+                <div class="loading">
+                    Loading users...
+                </div>
+            `;
+
+
             try {
 
-                const response =
-                    await fetch(API_URL);
-
                 const data =
-                    await response.json();
+                    await apiRequest(API_URL);
 
 
-                if (
-                    data.users &&
-                    data.users.length > 0
-                ) {
-
-                    document.getElementById(
-                        'totalUsers'
-                    ).textContent =
-                        data.users.length;
+                const users =
+                    data.users || [];
 
 
-                    container.innerHTML =
-                        data.users.map(user => {
-
-                            const initials =
-                                user.name
-                                    .split(' ')
-                                    .map(word =>
-                                        word.charAt(0)
-                                    )
-                                    .join('')
-                                    .substring(0, 2)
-                                    .toUpperCase();
+                document.getElementById(
+                    'totalUsers'
+                ).textContent =
+                    users.length;
 
 
-                            return `
+                if (users.length === 0) {
+
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div style="font-size:42px">📭</div>
+                            <strong>No users yet</strong>
+                            <p>Add your first user to get started.</p>
+                        </div>
+                    `;
+
+                    return;
+
+                }
+
+
+                container.innerHTML =
+                    users.map(user => {
+
+                        const safeName =
+                            escapeHTML(user.name);
+
+                        const safeEmail =
+                            escapeHTML(user.email);
+
+                        const initials =
+                            user.name
+                                .split(' ')
+                                .filter(Boolean)
+                                .map(word =>
+                                    word.charAt(0)
+                                )
+                                .join('')
+                                .substring(0, 2)
+                                .toUpperCase() || 'U';
+
+
+                        return `
 
                             <div
                                 class="user-item"
@@ -862,19 +832,19 @@
                                 <div class="user-info">
 
                                     <div class="avatar">
-                                        ${initials}
+                                        ${escapeHTML(initials)}
                                     </div>
 
 
                                     <div class="user-details">
 
                                         <div class="user-name">
-                                            ${user.name}
+                                            ${safeName}
                                         </div>
 
 
                                         <div class="user-email">
-                                            ${user.email}
+                                            ${safeEmail}
                                         </div>
 
 
@@ -890,6 +860,7 @@
                                 <div class="user-actions">
 
                                     <button
+                                        type="button"
                                         class="btn btn-warning"
                                         onclick="editUser(${user.id})"
                                     >
@@ -898,6 +869,7 @@
 
 
                                     <button
+                                        type="button"
                                         class="btn btn-danger"
                                         onclick="deleteUser(${user.id})"
                                     >
@@ -917,20 +889,23 @@
                                         <input
                                             type="text"
                                             id="edit-name-${user.id}"
-                                            value="${user.name}"
+                                            value="${safeName}"
                                             placeholder="Name"
+                                            required
                                         >
 
 
                                         <input
                                             type="email"
                                             id="edit-email-${user.id}"
-                                            value="${user.email}"
+                                            value="${safeEmail}"
                                             placeholder="Email"
+                                            required
                                         >
 
 
                                         <button
+                                            type="button"
                                             class="btn btn-success"
                                             onclick="updateUser(${user.id})"
                                         >
@@ -939,6 +914,7 @@
 
 
                                         <button
+                                            type="button"
                                             class="btn btn-danger"
                                             onclick="cancelEdit(${user.id})"
                                         >
@@ -951,55 +927,30 @@
 
                             </div>
 
-                            `;
+                        `;
 
-                        }).join('');
-
-
-                } else {
-
-                    document.getElementById(
-                        'totalUsers'
-                    ).textContent = 0;
-
-
-                    container.innerHTML = `
-
-                        <div class="empty-state">
-
-                            <div class="empty-icon">
-                                📭
-                            </div>
-
-                            <strong>
-                                No users yet
-                            </strong>
-
-                            <p>
-                                Add your first user to get started.
-                            </p>
-
-                        </div>
-
-                    `;
-
-                }
+                    }).join('');
 
 
             } catch (error) {
 
+                console.error(
+                    'FETCH USERS ERROR:',
+                    error
+                );
+
+
+                document.getElementById(
+                    'totalUsers'
+                ).textContent = '0';
+
+
                 container.innerHTML = `
-
                     <div class="error">
-
-                        ❌ Unable to connect to the server.
-
+                        ❌ Unable to load users.
                         <br><br>
-
-                        ${error.message}
-
+                        ${escapeHTML(error.message)}
                     </div>
-
                 `;
 
             }
@@ -1007,130 +958,125 @@
         }
 
 
-        // ADD USER
+        /* =========================================
+           ADD USER
+        ========================================= */
 
         document
             .getElementById('addUserForm')
             .addEventListener(
                 'submit',
-                async (event) => {
+                async function (event) {
 
                     event.preventDefault();
 
 
-                    const name =
-                        document
-                            .getElementById('nameInput')
-                            .value
-                            .trim();
-
-
-                    const email =
-                        document
-                            .getElementById('emailInput')
-                            .value
-                            .trim();
-
-
-                    const messageDiv =
+                    const nameInput =
                         document.getElementById(
-                            'addMessage'
+                            'nameInput'
                         );
 
 
-                    try {
-
-                        const response =
-                            await fetch(API_URL, {
-
-                                method: 'POST',
-
-                                headers: {
-                                    'Content-Type':
-                                        'application/json'
-                                },
-
-                                body:
-                                    JSON.stringify({
-                                        name,
-                                        email
-                                    })
-
-                            });
+                    const emailInput =
+                        document.getElementById(
+                            'emailInput'
+                        );
 
 
-                        const data =
-                            await response.json();
+                    const button =
+                        document.getElementById(
+                            'addUserButton'
+                        );
 
 
-                        if (response.ok) {
-
-                            messageDiv.innerHTML = `
-
-                                <div class="success">
-
-                                    ✓
-                                    ${data.message}
-
-                                </div>
-
-                            `;
+                    const name =
+                        nameInput.value.trim();
 
 
-                            document
-                                .getElementById('nameInput')
-                                .value = '';
+                    const email =
+                        emailInput.value.trim();
 
 
-                            document
-                                .getElementById('emailInput')
-                                .value = '';
+                    if (!name || !email) {
 
+                        showMessage(
+                            'Name and email are required.',
+                            'error'
+                        );
 
-                            fetchUsers();
-
-
-                        } else {
-
-                            messageDiv.innerHTML = `
-
-                                <div class="error">
-
-                                    ❌ ${data.error}
-
-                                </div>
-
-                            `;
-
-                        }
-
-
-                    } catch (error) {
-
-                        messageDiv.innerHTML = `
-
-                            <div class="error">
-
-                                ❌ ${error.message}
-
-                            </div>
-
-                        `;
+                        return;
 
                     }
 
 
-                    setTimeout(() => {
+                    button.disabled = true;
 
-                        messageDiv.innerHTML = '';
+                    button.textContent =
+                        'Adding...';
 
-                    }, 3000);
+
+                    try {
+
+                        const data =
+                            await apiRequest(
+                                API_URL,
+                                {
+                                    method: 'POST',
+
+                                    body:
+                                        JSON.stringify({
+                                            name,
+                                            email
+                                        })
+                                }
+                            );
+
+
+                        showMessage(
+                            data.message ||
+                            'User added successfully',
+                            'success'
+                        );
+
+
+                        nameInput.value = '';
+
+                        emailInput.value = '';
+
+
+                        await fetchUsers();
+
+
+                    } catch (error) {
+
+                        console.error(
+                            'ADD USER ERROR:',
+                            error
+                        );
+
+
+                        showMessage(
+                            error.message,
+                            'error'
+                        );
+
+
+                    } finally {
+
+                        button.disabled = false;
+
+                        button.textContent =
+                            '+ Add User';
+
+                    }
 
                 }
             );
 
 
-        // EDIT USER
+        /* =========================================
+           EDIT USER
+        ========================================= */
 
         function editUser(id) {
 
@@ -1140,18 +1086,30 @@
                 );
 
 
-            if (editForm) {
+            if (!editForm) return;
 
-                editForm.classList.toggle(
-                    'hidden'
-                );
 
-            }
+            document
+                .querySelectorAll('.edit-form')
+                .forEach(form => {
+
+                    if (form.id !== `edit-form-${id}`) {
+
+                        form.classList.add('hidden');
+
+                    }
+
+                });
+
+
+            editForm.classList.toggle('hidden');
 
         }
 
 
-        // CANCEL EDIT
+        /* =========================================
+           CANCEL EDIT
+        ========================================= */
 
         function cancelEdit(id) {
 
@@ -1163,35 +1121,40 @@
 
             if (editForm) {
 
-                editForm.classList.add(
-                    'hidden'
-                );
+                editForm.classList.add('hidden');
 
             }
 
         }
 
 
-        // UPDATE USER
+        /* =========================================
+           UPDATE USER
+        ========================================= */
 
         async function updateUser(id) {
 
+            const nameInput =
+                document.getElementById(
+                    `edit-name-${id}`
+                );
+
+
+            const emailInput =
+                document.getElementById(
+                    `edit-email-${id}`
+                );
+
+
+            if (!nameInput || !emailInput) return;
+
+
             const name =
-                document
-                    .getElementById(
-                        `edit-name-${id}`
-                    )
-                    .value
-                    .trim();
+                nameInput.value.trim();
 
 
             const email =
-                document
-                    .getElementById(
-                        `edit-email-${id}`
-                    )
-                    .value
-                    .trim();
+                emailInput.value.trim();
 
 
             if (!name || !email) {
@@ -1207,17 +1170,12 @@
 
             try {
 
-                const response =
-                    await fetch(
+                const data =
+                    await apiRequest(
                         `${API_URL}/${id}`,
                         {
 
                             method: 'PUT',
-
-                            headers: {
-                                'Content-Type':
-                                    'application/json'
-                            },
 
                             body:
                                 JSON.stringify({
@@ -1229,29 +1187,21 @@
                     );
 
 
-                const data =
-                    await response.json();
+                alert(
+                    `✓ ${data.message || 'User updated successfully'}`
+                );
 
 
-                if (response.ok) {
-
-                    alert(
-                        '✓ User updated successfully!'
-                    );
-
-                    fetchUsers();
-
-
-                } else {
-
-                    alert(
-                        `❌ ${data.error}`
-                    );
-
-                }
+                await fetchUsers();
 
 
             } catch (error) {
+
+                console.error(
+                    'UPDATE USER ERROR:',
+                    error
+                );
+
 
                 alert(
                     `❌ ${error.message}`
@@ -1262,7 +1212,9 @@
         }
 
 
-        // DELETE USER
+        /* =========================================
+           DELETE USER
+        ========================================= */
 
         async function deleteUser(id) {
 
@@ -1277,8 +1229,8 @@
 
             try {
 
-                const response =
-                    await fetch(
+                const data =
+                    await apiRequest(
                         `${API_URL}/${id}`,
                         {
                             method: 'DELETE'
@@ -1286,29 +1238,21 @@
                     );
 
 
-                const data =
-                    await response.json();
+                alert(
+                    `✓ ${data.message || 'User deleted successfully'}`
+                );
 
 
-                if (response.ok) {
-
-                    alert(
-                        '✓ User deleted successfully!'
-                    );
-
-                    fetchUsers();
-
-
-                } else {
-
-                    alert(
-                        `❌ ${data.error}`
-                    );
-
-                }
+                await fetchUsers();
 
 
             } catch (error) {
+
+                console.error(
+                    'DELETE USER ERROR:',
+                    error
+                );
+
 
                 alert(
                     `❌ ${error.message}`
@@ -1319,9 +1263,26 @@
         }
 
 
-        // INITIAL LOAD
+        /* =========================================
+           INITIALIZE APPLICATION
+        ========================================= */
 
-        fetchUsers();
+        document.addEventListener(
+            'DOMContentLoaded',
+            async () => {
+
+                console.log(
+                    'API URL:',
+                    API_URL
+                );
+
+
+                await checkAPI();
+
+                await fetchUsers();
+
+            }
+        );
 
     </script>
 
