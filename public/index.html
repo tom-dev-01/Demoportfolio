@@ -3,335 +3,289 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>User Management Dashboard | Portfolio Project</title>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
     <style>
-        /* ... (your existing CSS stays exactly as you have it) ... */
-        /* I'm omitting the CSS here for brevity – keep your original styles */
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:#f6f9fc; padding:24px; color:#1e293b; }
+        .dashboard { max-width:1200px; margin:0 auto; }
+        .navbar { display:flex; justify-content:space-between; align-items:center; background:#fff; padding:16px 24px; border-radius:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04); margin-bottom:24px; flex-wrap:wrap; gap:12px; }
+        .logo { font-weight:800; font-size:20px; color:#0f172a; }
+        .logo span { color:#3b82f6; }
+        .status { display:flex; gap:24px; font-size:14px; flex-wrap:wrap; }
+        .status-item { display:flex; align-items:center; gap:6px; }
+        .status-dot { width:10px; height:10px; border-radius:50%; display:inline-block; }
+        .status-dot.online { background:#22c55e; }
+        .status-dot.offline { background:#ef4444; }
+        .status-label { color:#64748b; }
+        .status-value { font-weight:600; }
+        .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:24px; }
+        .stat-card { background:#fff; padding:20px; border-radius:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+        .stat-label { font-size:14px; color:#64748b; font-weight:500; }
+        .stat-number { font-size:28px; font-weight:800; color:#0f172a; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .card { background:#fff; border-radius:16px; padding:24px; box-shadow:0 2px 8px rgba(0,0,0,0.04); margin-bottom:24px; }
+        .card-title { font-size:18px; font-weight:700; margin-bottom:4px; }
+        .card-sub { color:#64748b; font-size:14px; margin-bottom:16px; }
+        .form-row { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; }
+        .form-group { flex:1 1 200px; }
+        .form-group label { display:block; font-size:13px; font-weight:500; color:#475569; margin-bottom:4px; }
+        .form-group input { width:100%; padding:10px 14px; border:1px solid #e2e8f0; border-radius:10px; font-size:14px; transition:border 0.2s; }
+        .form-group input:focus { outline:none; border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,0.1); }
+        .btn { padding:10px 20px; border:none; border-radius:10px; font-weight:600; font-size:14px; cursor:pointer; transition:0.15s; background:#e2e8f0; color:#1e293b; }
+        .btn-primary { background:#3b82f6; color:#fff; }
+        .btn-primary:hover { background:#2563eb; }
+        .btn-primary:disabled { opacity:0.6; cursor:not-allowed; }
+        .btn-success { background:#22c55e; color:#fff; }
+        .btn-success:hover { background:#16a34a; }
+        .btn-warning { background:#f59e0b; color:#fff; }
+        .btn-warning:hover { background:#d97706; }
+        .btn-danger { background:#ef4444; color:#fff; }
+        .btn-danger:hover { background:#dc2626; }
+        .message { padding:12px 16px; border-radius:10px; margin-top:12px; font-weight:500; }
+        .message.success { background:#dcfce7; color:#166534; }
+        .message.error { background:#fee2e2; color:#991b1b; }
+        .user-list { display:flex; flex-direction:column; gap:12px; }
+        .user-item { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; padding:16px; background:#f8fafc; border-radius:12px; border:1px solid #eef2f6; transition:background 0.1s; }
+        .user-item:hover { background:#f1f5f9; }
+        .user-info { display:flex; align-items:center; gap:14px; flex:1 1 200px; }
+        .avatar { width:44px; height:44px; border-radius:50%; background:#3b82f6; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; flex-shrink:0; }
+        .user-details { flex:1; }
+        .user-name { font-weight:600; }
+        .user-email { font-size:14px; color:#64748b; }
+        .user-id { font-size:12px; color:#94a3b8; display:block; margin-top:2px; }
+        .user-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+        .user-actions .btn { padding:6px 14px; font-size:13px; }
+        .edit-form { margin-top:12px; padding-top:12px; border-top:1px dashed #cbd5e1; width:100%; }
+        .edit-form .form-group { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+        .edit-form .form-group input { flex:1 1 140px; }
+        .edit-form .form-group .btn { padding:6px 14px; }
+        .hidden { display:none; }
+        .loading, .empty-state, .error { text-align:center; padding:40px 20px; color:#64748b; }
+        .error { color:#991b1b; }
+        .empty-state strong { font-size:18px; color:#1e293b; display:block; margin:8px 0; }
+        @media (max-width:640px) { body { padding:12px; } .navbar { flex-direction:column; align-items:stretch; } .status { justify-content:space-between; } .user-item { flex-direction:column; align-items:stretch; } .user-actions { justify-content:flex-end; } }
     </style>
 </head>
-
 <body>
+<div class="dashboard">
+    <nav class="navbar">
+        <div class="logo">User<span>Flow</span></div>
+        <div class="status">
+            <div class="status-item"><span class="status-label">API</span><span class="status-dot online" id="apiDot"></span><span class="status-value" id="apiStatus">Checking...</span></div>
+            <div class="status-item"><span class="status-label">System</span><span class="status-dot online" id="systemDot"></span><span class="status-value" id="systemStatus">Online</span></div>
+        </div>
+    </nav>
 
-    <!-- Your existing HTML structure (navbar, stats, etc.) stays unchanged -->
+    <div class="stats">
+        <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-number" id="totalUsers">0</div></div>
+        <div class="stat-card"><div class="stat-label">Active</div><div class="stat-number">✅</div></div>
+        <div class="stat-card"><div class="stat-label">Last added</div><div class="stat-number" id="lastAdded">—</div></div>
+    </div>
 
-    <script>
+    <div class="card">
+        <div class="card-title">➕ Add New User</div>
+        <div class="card-sub">Create a new user profile in the system.</div>
+        <form id="addUserForm" class="form-row">
+            <div class="form-group"><label for="nameInput">Full Name</label><input type="text" id="nameInput" placeholder="Thomas Omollo" required></div>
+            <div class="form-group"><label for="emailInput">Email</label><input type="email" id="emailInput" placeholder="thomasomollo01@gmail.com" required></div>
+            <button type="submit" class="btn btn-primary" id="addUserButton">+ Add User</button>
+        </form>
+        <div id="addMessage"></div>
+    </div>
 
-        /* =========================================
-           IMPORTANT API CONFIGURATION
-        ========================================= */
+    <div class="card">
+        <div class="card-title">📋 User Directory</div>
+        <div class="card-sub">Manage existing users and their information.</div>
+        <div id="users-container" class="user-list"><div class="loading">Loading users...</div></div>
+    </div>
+</div>
 
-        const API_BASE_URL = '';
-        const API_URL = `${API_BASE_URL}/api/users`;
-        const HEALTH_URL = `${API_BASE_URL}/health`;
+<script>
+    const API_BASE_URL = '';
+    const API_URL = `${API_BASE_URL}/api/users`;
+    const HEALTH_URL = `${API_BASE_URL}/health`;
 
-        /* =========================================
-           SAFE FETCH HELPER
-        ========================================= */
+    async function apiRequest(url, options = {}) {
+        const response = await fetch(url, {
+            ...options,
+            headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }
+        });
+        const contentType = response.headers.get('content-type') || '';
+        let data;
+        if (contentType.includes('application/json')) {
+            data = await response.json();
+        } else {
+            const text = await response.text();
+            throw new Error(`Server returned invalid response (${response.status}): ${text.substring(0, 150)}`);
+        }
+        if (!response.ok) {
+            throw new Error(data.error || data.message || `Request failed with status ${response.status}`);
+        }
+        return data;
+    }
 
-        async function apiRequest(url, options = {}) {
-            const response = await fetch(url, {
-                ...options,
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(options.headers || {})
-                }
-            });
+    function escapeHTML(v) {
+        return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+    }
 
-            const contentType = response.headers.get('content-type') || '';
-            let data;
+    function getUserFullName(user) {
+        if (user.name && user.name.trim() !== '') return user.name.trim();
+        const fn = user.first_name || '', ln = user.last_name || '';
+        return `${fn} ${ln}`.trim() || 'Unknown User';
+    }
 
-            if (contentType.includes('application/json')) {
-                data = await response.json();
-            } else {
-                const text = await response.text();
-                throw new Error(
-                    `Server returned an invalid response (${response.status}): ${text.substring(0, 150)}`
-                );
+    function getUserInitials(user) {
+        const full = getUserFullName(user);
+        if (full === 'Unknown User') return 'U';
+        const parts = full.split(' ');
+        let initials = parts.map(p => p.charAt(0).toUpperCase()).join('');
+        return initials.substring(0,2) || 'U';
+    }
+
+    function showMessage(msg, type = 'success') {
+        const div = document.getElementById('addMessage');
+        div.innerHTML = `<div class="message ${type}">${type === 'success' ? '✓' : '❌'} ${escapeHTML(msg)}</div>`;
+        setTimeout(() => div.innerHTML = '', 5000);
+    }
+
+    function updateStatusDot(elId, connected) {
+        document.getElementById(elId).className = 'status-dot ' + (connected ? 'online' : 'offline');
+    }
+
+    async function checkAPI() {
+        try {
+            const resp = await fetch(HEALTH_URL);
+            if (!resp.ok) throw new Error('Unavailable');
+            const data = await resp.json();
+            document.getElementById('apiStatus').textContent = 'Connected';
+            updateStatusDot('apiDot', true);
+            document.getElementById('systemStatus').textContent = data.database === 'connected' ? 'Active' : 'Online';
+            updateStatusDot('systemDot', data.database === 'connected');
+        } catch (e) {
+            document.getElementById('apiStatus').textContent = 'Offline';
+            updateStatusDot('apiDot', false);
+            document.getElementById('systemStatus').textContent = 'Unavailable';
+            updateStatusDot('systemDot', false);
+        }
+    }
+
+    async function fetchUsers() {
+        const container = document.getElementById('users-container');
+        container.innerHTML = `<div class="loading">Loading users...</div>`;
+
+        try {
+            const data = await apiRequest(API_URL);
+            let users = Array.isArray(data) ? data : (data.users || []);
+            if (!Array.isArray(users)) throw new Error('Unexpected API response');
+
+            // Update Stats
+            document.getElementById('totalUsers').textContent = users.length;
+
+            // Find last added user (by created_at)
+            let lastAddedName = '—';
+            if (users.length > 0) {
+                const sorted = [...users].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                const latest = sorted[0];
+                if (latest) lastAddedName = getUserFullName(latest);
+            }
+            document.getElementById('lastAdded').textContent = lastAddedName !== '—' ? lastAddedName : '—';
+
+            if (users.length === 0) {
+                container.innerHTML = `<div class="empty-state"><div style="font-size:42px">📭</div><strong>No users yet</strong><p>Add your first user to get started.</p></div>`;
+                return;
             }
 
-            if (!response.ok) {
-                throw new Error(
-                    data.error || data.message || `Request failed with status ${response.status}`
-                );
-            }
-
-            return data;
-        }
-
-        /* =========================================
-           ESCAPE HTML
-        ========================================= */
-
-        function escapeHTML(value) {
-            return String(value)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
-        }
-
-        /* =========================================
-           SHOW MESSAGE
-        ========================================= */
-
-        function showMessage(message, type = 'success') {
-            const messageDiv = document.getElementById('addMessage');
-            messageDiv.innerHTML = `
-                <div class="${type}">
-                    ${type === 'success' ? '✓' : '❌'}
-                    ${escapeHTML(message)}
-                </div>
-            `;
-            setTimeout(() => { messageDiv.innerHTML = ''; }, 5000);
-        }
-
-        /* =========================================
-           HELPER: Get Full Name from User Object
-        ========================================= */
-
-        function getUserFullName(user) {
-            // If name exists, use it
-            if (user.name && user.name.trim() !== '') {
-                return user.name.trim();
-            }
-            // Otherwise combine first_name and last_name if present
-            const firstName = user.first_name || '';
-            const lastName = user.last_name || '';
-            const combined = `${firstName} ${lastName}`.trim();
-            if (combined !== '') {
-                return combined;
-            }
-            // Fallback
-            return 'Unknown User';
-        }
-
-        /* =========================================
-           HELPER: Get Initials from User
-        ========================================= */
-
-        function getUserInitials(user) {
-            const fullName = getUserFullName(user);
-            if (fullName === 'Unknown User') return 'U';
-            const parts = fullName.split(' ');
-            let initials = parts.map(part => part.charAt(0).toUpperCase()).join('');
-            return initials.substring(0, 2) || 'U';
-        }
-
-        /* =========================================
-           CHECK API
-        ========================================= */
-
-        async function checkAPI() {
-            const apiStatus = document.getElementById('apiStatus');
-            const systemStatus = document.getElementById('systemStatus');
-
-            try {
-                const response = await fetch(HEALTH_URL);
-                if (!response.ok) throw new Error('API unavailable');
-                const data = await response.json();
-                apiStatus.textContent = 'Connected';
-                systemStatus.textContent = data.database === 'connected' ? 'Active' : 'Online';
-            } catch (error) {
-                console.error('HEALTH CHECK ERROR:', error);
-                apiStatus.textContent = 'Offline';
-                systemStatus.textContent = 'Unavailable';
-            }
-        }
-
-        /* =========================================
-           FETCH USERS
-        ========================================= */
-
-        async function fetchUsers() {
-            const container = document.getElementById('users-container');
-            container.innerHTML = `<div class="loading">Loading users...</div>`;
-
-            try {
-                const data = await apiRequest(API_URL);
-
-                // Handle both direct array and { users: [...] } responses
-                let users = data;
-                if (Array.isArray(data)) {
-                    users = data;
-                } else if (data.users && Array.isArray(data.users)) {
-                    users = data.users;
-                } else {
-                    throw new Error('Unexpected API response format');
-                }
-
-                document.getElementById('totalUsers').textContent = users.length;
-
-                if (users.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <div style="font-size:42px">📭</div>
-                            <strong>No users yet</strong>
-                            <p>Add your first user to get started.</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                container.innerHTML = users.map(user => {
-                    const fullName = getUserFullName(user);
-                    const safeName = escapeHTML(fullName);
-                    const safeEmail = escapeHTML(user.email || '');
-                    const initials = getUserInitials(user);
-                    const userId = user.id || '?';
-
-                    return `
-                        <div class="user-item" data-id="${userId}">
-                            <div class="user-info">
-                                <div class="avatar">${escapeHTML(initials)}</div>
-                                <div class="user-details">
-                                    <div class="user-name">${safeName}</div>
-                                    <div class="user-email">${safeEmail}</div>
-                                    <span class="user-id">USER #${userId}</span>
-                                </div>
-                            </div>
-                            <div class="user-actions">
-                                <button type="button" class="btn btn-warning" onclick="editUser(${userId})">✏️ Edit</button>
-                                <button type="button" class="btn btn-danger" onclick="deleteUser(${userId})">🗑 Delete</button>
-                            </div>
-                            <div id="edit-form-${userId}" class="edit-form hidden">
-                                <div class="form-group">
-                                    <input type="text" id="edit-name-${userId}" value="${safeName}" placeholder="Name" required>
-                                    <input type="email" id="edit-email-${userId}" value="${safeEmail}" placeholder="Email" required>
-                                    <button type="button" class="btn btn-success" onclick="updateUser(${userId})">💾 Save</button>
-                                    <button type="button" class="btn btn-danger" onclick="cancelEdit(${userId})">Cancel</button>
-                                </div>
+            container.innerHTML = users.map(user => {
+                const fullName = getUserFullName(user);
+                const safeName = escapeHTML(fullName);
+                const safeEmail = escapeHTML(user.email || '');
+                const initials = getUserInitials(user);
+                const id = user.id || '?';
+                return `
+                    <div class="user-item" data-id="${id}">
+                        <div class="user-info">
+                            <div class="avatar">${escapeHTML(initials)}</div>
+                            <div class="user-details">
+                                <div class="user-name">${safeName}</div>
+                                <div class="user-email">${safeEmail}</div>
+                                <span class="user-id">USER #${id}</span>
                             </div>
                         </div>
-                    `;
-                }).join('');
-
-            } catch (error) {
-                console.error('FETCH USERS ERROR:', error);
-                document.getElementById('totalUsers').textContent = '0';
-                container.innerHTML = `
-                    <div class="error">
-                        ❌ Unable to load users.
-                        <br><br>
-                        ${escapeHTML(error.message)}
+                        <div class="user-actions">
+                            <button class="btn btn-warning" onclick="editUser(${id})">✏️ Edit</button>
+                            <button class="btn btn-danger" onclick="deleteUser(${id})">🗑 Delete</button>
+                        </div>
+                        <div id="edit-form-${id}" class="edit-form hidden">
+                            <div class="form-group">
+                                <input type="text" id="edit-name-${id}" value="${safeName}" placeholder="Name">
+                                <input type="email" id="edit-email-${id}" value="${safeEmail}" placeholder="Email">
+                                <button class="btn btn-success" onclick="updateUser(${id})">💾 Save</button>
+                                <button class="btn btn-danger" onclick="cancelEdit(${id})">Cancel</button>
+                            </div>
+                        </div>
                     </div>
                 `;
-            }
+            }).join('');
+        } catch (err) {
+            document.getElementById('totalUsers').textContent = '0';
+            document.getElementById('lastAdded').textContent = '—';
+            container.innerHTML = `<div class="error">❌ Unable to load users.<br><br>${escapeHTML(err.message)}</div>`;
         }
+    }
 
-        /* =========================================
-           ADD USER
-        ========================================= */
+    document.getElementById('addUserForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const nameInput = document.getElementById('nameInput');
+        const emailInput = document.getElementById('emailInput');
+        const button = document.getElementById('addUserButton');
+        const name = nameInput.value.trim(), email = emailInput.value.trim();
+        if (!name || !email) { showMessage('Name and email are required.', 'error'); return; }
 
-        document.getElementById('addUserForm').addEventListener('submit', async function (event) {
-            event.preventDefault();
-
-            const nameInput = document.getElementById('nameInput');
-            const emailInput = document.getElementById('emailInput');
-            const button = document.getElementById('addUserButton');
-
-            const name = nameInput.value.trim();
-            const email = emailInput.value.trim();
-
-            if (!name || !email) {
-                showMessage('Name and email are required.', 'error');
-                return;
-            }
-
-            button.disabled = true;
-            button.textContent = 'Adding...';
-
-            try {
-                const data = await apiRequest(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ name, email })
-                });
-                showMessage(data.message || 'User added successfully', 'success');
-                nameInput.value = '';
-                emailInput.value = '';
-                await fetchUsers();
-            } catch (error) {
-                console.error('ADD USER ERROR:', error);
-                showMessage(error.message, 'error');
-            } finally {
-                button.disabled = false;
-                button.textContent = '+ Add User';
-            }
-        });
-
-        /* =========================================
-           EDIT / CANCEL / UPDATE / DELETE
-        ========================================= */
-
-        function editUser(id) {
-            const editForm = document.getElementById(`edit-form-${id}`);
-            if (!editForm) return;
-            document.querySelectorAll('.edit-form').forEach(form => {
-                if (form.id !== `edit-form-${id}`) form.classList.add('hidden');
-            });
-            editForm.classList.toggle('hidden');
-        }
-
-        function cancelEdit(id) {
-            const editForm = document.getElementById(`edit-form-${id}`);
-            if (editForm) editForm.classList.add('hidden');
-        }
-
-        async function updateUser(id) {
-            const nameInput = document.getElementById(`edit-name-${id}`);
-            const emailInput = document.getElementById(`edit-email-${id}`);
-            if (!nameInput || !emailInput) return;
-
-            const name = nameInput.value.trim();
-            const email = emailInput.value.trim();
-
-            if (!name || !email) {
-                alert('Name and email are required.');
-                return;
-            }
-
-            try {
-                const data = await apiRequest(`${API_URL}/${id}`, {
-                    method: 'PUT',
-                    body: JSON.stringify({ name, email })
-                });
-                alert(`✓ ${data.message || 'User updated successfully'}`);
-                await fetchUsers();
-            } catch (error) {
-                console.error('UPDATE USER ERROR:', error);
-                alert(`❌ ${error.message}`);
-            }
-        }
-
-        async function deleteUser(id) {
-            if (!confirm('Are you sure you want to delete this user?')) return;
-            try {
-                const data = await apiRequest(`${API_URL}/${id}`, { method: 'DELETE' });
-                alert(`✓ ${data.message || 'User deleted successfully'}`);
-                await fetchUsers();
-            } catch (error) {
-                console.error('DELETE USER ERROR:', error);
-                alert(`❌ ${error.message}`);
-            }
-        }
-
-        /* =========================================
-           INITIALIZE
-        ========================================= */
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            console.log('API URL:', API_URL);
-            await checkAPI();
+        button.disabled = true; button.textContent = 'Adding...';
+        try {
+            const data = await apiRequest(API_URL, { method: 'POST', body: JSON.stringify({ name, email }) });
+            showMessage(data.message || 'User added successfully', 'success');
+            nameInput.value = ''; emailInput.value = '';
             await fetchUsers();
-        });
+        } catch (err) { showMessage(err.message, 'error');
+        } finally { button.disabled = false; button.textContent = '+ Add User'; }
+    });
 
-    </script>
+    function editUser(id) {
+        const form = document.getElementById(`edit-form-${id}`);
+        if (!form) return;
+        document.querySelectorAll('.edit-form').forEach(f => f.classList.add('hidden'));
+        form.classList.toggle('hidden');
+    }
+    function cancelEdit(id) { document.getElementById(`edit-form-${id}`)?.classList.add('hidden'); }
 
+    async function updateUser(id) {
+        const nameInput = document.getElementById(`edit-name-${id}`), emailInput = document.getElementById(`edit-email-${id}`);
+        if (!nameInput || !emailInput) return;
+        const name = nameInput.value.trim(), email = emailInput.value.trim();
+        if (!name || !email) { alert('Name and email are required.'); return; }
+        try {
+            const data = await apiRequest(`${API_URL}/${id}`, { method: 'PUT', body: JSON.stringify({ name, email }) });
+            alert(`✓ ${data.message || 'User updated successfully'}`);
+            await fetchUsers();
+        } catch (err) { alert(`❌ ${err.message}`); }
+    }
+
+    async function deleteUser(id) {
+        if (!confirm('Are you sure you want to delete this user?')) return;
+        try {
+            const data = await apiRequest(`${API_URL}/${id}`, { method: 'DELETE' });
+            alert(`✓ ${data.message || 'User deleted successfully'}`);
+            await fetchUsers();
+        } catch (err) { alert(`❌ ${err.message}`); }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        await checkAPI();
+        await fetchUsers();
+    });
+</script>
 </body>
 </html>
