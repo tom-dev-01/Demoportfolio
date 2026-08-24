@@ -74,27 +74,7 @@ const allowedOrigins = [
 
 app.use(
     cors({
-        origin: (origin, callback) => {
-
-            // Allow Reqable, Postman, server-to-server
-            // requests and requests without an Origin header.
-            if (!origin) {
-                return callback(null, true);
-            }
-
-            if (allowedOrigins.includes(origin)) {
-                return callback(null, true);
-            }
-
-            console.warn(
-                `⚠️ CORS blocked origin: ${origin}`
-            );
-
-            return callback(
-                new Error("Not allowed by CORS")
-            );
-        },
-
+        origin: true,
         methods: [
             "GET",
             "POST",
@@ -102,7 +82,6 @@ app.use(
             "DELETE",
             "OPTIONS"
         ],
-
         allowedHeaders: [
             "Content-Type",
             "Authorization"
