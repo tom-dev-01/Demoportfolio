@@ -1,5 +1,5 @@
 const express = require('express');
-const mysql = require('mysql2/promise'); // use promise version directly
+const mysql = require('mysql2/promise');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
@@ -8,51 +8,45 @@ const { body, validationResult, matchedData } = require('express-validator');
 const path = require('path');
 
 // ================================
-//  CONFIGURATION & ENV
+//  ENV VALIDATION
 // ================================
 const REQUIRED_ENV = ['DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
 const missing = REQUIRED_ENV.filter(key => !process.env[key]);
 if (missing.length) {
-    console.error(`❌ Missing required environment variables: ${missing.join(', ')}`);
+    console.error(`❌ Missing env: ${missing.join(', ')}`);
     process.exit(1);
 }
 
 const PORT = process.env.PORT || 3000;
-const CORS_ORIGIN = process.env.CORS_ORIGIN || '*'; // Set to your frontend URL in production
+const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
 
 // ================================
-//  EXPRESS APP
+//  APP
 // ================================
 const app = express();
-
-// Security & performance middleware
 app.use(helmet());
 app.use(compression());
 app.use(cors({ origin: CORS_ORIGIN }));
-app.use(express.json({ limit: '10kb' })); // limit payload size
+app.use(express.json({ limit: '10kb' }));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Rate limiting – protect against brute force
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per window
+    windowMs: 15 * 60 * 1000,
+    max: 100,
     message: { success: false, error: 'Too many requests, please try again later.' }
 });
 app.use('/api/', limiter);
 
-// Serve static frontend
-app.use(express.static(path.join(__dirname, 'public')));
-
 // ================================
-//  LOGGING (simple structured)
+//  LOGGER
 // ================================
 const log = {
     info: (...args) => console.log(`[${new Date().toISOString()}] INFO:`, ...args),
     error: (...args) => console.error(`[${new Date().toISOString()}] ERROR:`, ...args),
-    warn: (...args) => console.warn(`[${new Date().toISOString()}] WARN:`, ...args),
 };
 
 // ================================
-//  DATABASE POOL
+//  DATABASE
 // ================================
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
@@ -69,14 +63,13 @@ const pool = mysql.createPool({
     keepAliveInitialDelay: 10000,
 });
 
-// Test connection on startup
 (async () => {
     try {
         const conn = await pool.getConnection();
-        log.info('✅ Database connected successfully');
+        log.info('✅ Database connected');
         conn.release();
     } catch (err) {
-        log.error('❌ Database connection failed:', err.message);
+        log.error('❌ DB connection failed:', err.message);
         process.exit(1);
     }
 })();
@@ -86,30 +79,18 @@ const pool = mysql.createPool({
 // ================================
 function splitName(fullName) {
     const parts = (fullName || '').trim().split(/\s+/);
-    const firstName = parts[0] || '';
-    const lastName = parts.slice(1).join(' ') || '';
-    return { firstName, lastName };
+    return { firstName: parts[0] || '', lastName: parts.slice(1).join(' ') || '' };
 }
 
 // ================================
-//  VALIDATION SCHEMAS
+//  VALIDATION
 // ================================
-const userValidationRules = () => [
-    body('name')
-        .trim()
-        .isLength({ min: 1, max: 255 }).withMessage('Name must be between 1 and 255 characters')
-        .escape(),
-    body('email')
-        .trim()
-        .isEmail().withMessage('Must be a valid email address')
-        .normalizeEmail()
-        .isLength({ max: 255 }).withMessage('Email too long'),
+const validateUser = () => [
+    body('name').trim().isLength({ min: 1, max: 255 }).escape(),
+    body('email').trim().isEmail().normalizeEmail().isLength({ max: 255 }),
 ];
 
-// ================================
-//  MIDDLEWARE: Handle validation errors
-// ================================
-const validate = (req, res, next) => {
+const handleValidation = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({
@@ -125,192 +106,133 @@ const validate = (req, res, next) => {
 //  ROUTES
 // ================================
 
-// GET all users
+// GET all users (includes created_at for "Last added" stat)
 app.get('/api/users', async (req, res, next) => {
     try {
         const [rows] = await pool.query(
-            'SELECT id, first_name, last_name, email FROM users ORDER BY id DESC'
+            'SELECT id, first_name, last_name, email, created_at FROM users ORDER BY id DESC'
         );
         const users = rows.map(row => ({
             ...row,
-            name: `${row.first_name} ${row.last_name}`.trim()
+            name: `${row.first_name} ${row.last_name}`.trim(),
+            created_at: row.created_at ? new Date(row.created_at).toISOString() : null
         }));
         res.json({ success: true, users });
-    } catch (err) {
-        next(err);
-    }
+    } catch (err) { next(err); }
 });
 
 // GET single user
 app.get('/api/users/:id', async (req, res, next) => {
     try {
         const id = parseInt(req.params.id, 10);
-        if (isNaN(id)) {
-            return res.status(400).json({ success: false, error: 'Invalid user ID' });
-        }
+        if (isNaN(id)) return res.status(400).json({ success: false, error: 'Invalid ID' });
+
         const [rows] = await pool.query(
-            'SELECT id, first_name, last_name, email FROM users WHERE id = ?',
+            'SELECT id, first_name, last_name, email, created_at FROM users WHERE id = ?',
             [id]
         );
-        if (rows.length === 0) {
-            return res.status(404).json({ success: false, error: 'User not found' });
-        }
+        if (rows.length === 0) return res.status(404).json({ success: false, error: 'User not found' });
+
         const user = {
             ...rows[0],
-            name: `${rows[0].first_name} ${rows[0].last_name}`.trim()
+            name: `${rows[0].first_name} ${rows[0].last_name}`.trim(),
+            created_at: rows[0].created_at ? new Date(rows[0].created_at).toISOString() : null
         };
         res.json({ success: true, user });
+    } catch (err) { next(err); }
+});
+
+// CREATE user
+app.post('/api/users', validateUser(), handleValidation, async (req, res, next) => {
+    try {
+        const { name, email } = matchedData(req);
+        const { firstName, lastName } = splitName(name);
+
+        const [result] = await pool.execute(
+            'INSERT INTO users (first_name, last_name, email) VALUES (?, ?, ?)',
+            [firstName, lastName, email]
+        );
+        log.info(`✅ Created user: ${name} (ID: ${result.insertId})`);
+        res.status(201).json({ success: true, id: result.insertId, message: 'User added successfully' });
     } catch (err) {
+        if (err.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({ success: false, error: 'Email already exists' });
+        }
         next(err);
     }
 });
 
-// CREATE user
-app.post('/api/users',
-    userValidationRules(),
-    validate,
-    async (req, res, next) => {
-        try {
-            const { name, email } = matchedData(req);
-            const { firstName, lastName } = splitName(name);
-
-            const [result] = await pool.execute(
-                'INSERT INTO users (first_name, last_name, email) VALUES (?, ?, ?)',
-                [firstName, lastName, email]
-            );
-
-            log.info(`✅ New user created: ${name} (ID: ${result.insertId})`);
-            res.status(201).json({
-                success: true,
-                id: result.insertId,
-                message: 'User added successfully'
-            });
-        } catch (err) {
-            // Duplicate email
-            if (err.code === 'ER_DUP_ENTRY') {
-                return res.status(409).json({ success: false, error: 'Email already exists' });
-            }
-            next(err);
-        }
-    }
-);
-
 // UPDATE user
-app.put('/api/users/:id',
-    userValidationRules(),
-    validate,
-    async (req, res, next) => {
-        try {
-            const id = parseInt(req.params.id, 10);
-            if (isNaN(id)) {
-                return res.status(400).json({ success: false, error: 'Invalid user ID' });
-            }
+app.put('/api/users/:id', validateUser(), handleValidation, async (req, res, next) => {
+    try {
+        const id = parseInt(req.params.id, 10);
+        if (isNaN(id)) return res.status(400).json({ success: false, error: 'Invalid ID' });
 
-            const { name, email } = matchedData(req);
-            const { firstName, lastName } = splitName(name);
+        const { name, email } = matchedData(req);
+        const { firstName, lastName } = splitName(name);
 
-            const [result] = await pool.execute(
-                'UPDATE users SET first_name = ?, last_name = ?, email = ? WHERE id = ?',
-                [firstName, lastName, email, id]
-            );
+        const [result] = await pool.execute(
+            'UPDATE users SET first_name = ?, last_name = ?, email = ? WHERE id = ?',
+            [firstName, lastName, email, id]
+        );
+        if (result.affectedRows === 0) return res.status(404).json({ success: false, error: 'User not found' });
 
-            if (result.affectedRows === 0) {
-                return res.status(404).json({ success: false, error: 'User not found' });
-            }
-
-            log.info(`✅ User ${id} updated`);
-            res.json({ success: true, message: 'User updated successfully' });
-        } catch (err) {
-            if (err.code === 'ER_DUP_ENTRY') {
-                return res.status(409).json({ success: false, error: 'Email already exists' });
-            }
-            next(err);
+        log.info(`✅ Updated user ${id}`);
+        res.json({ success: true, message: 'User updated successfully' });
+    } catch (err) {
+        if (err.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({ success: false, error: 'Email already exists' });
         }
+        next(err);
     }
-);
+});
 
 // DELETE user
 app.delete('/api/users/:id', async (req, res, next) => {
     try {
         const id = parseInt(req.params.id, 10);
-        if (isNaN(id)) {
-            return res.status(400).json({ success: false, error: 'Invalid user ID' });
-        }
+        if (isNaN(id)) return res.status(400).json({ success: false, error: 'Invalid ID' });
 
         const [result] = await pool.execute('DELETE FROM users WHERE id = ?', [id]);
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ success: false, error: 'User not found' });
-        }
+        if (result.affectedRows === 0) return res.status(404).json({ success: false, error: 'User not found' });
 
-        log.info(`🗑 User ${id} deleted`);
+        log.info(`🗑 Deleted user ${id}`);
         res.json({ success: true, message: 'User deleted successfully' });
-    } catch (err) {
-        next(err);
-    }
+    } catch (err) { next(err); }
 });
 
-// HEALTH check
-app.get('/health', async (req, res, next) => {
+// HEALTH
+app.get('/health', async (req, res) => {
     try {
         await pool.query('SELECT 1');
-        res.json({
-            status: 'healthy',
-            database: 'connected',
-            timestamp: new Date().toISOString()
-        });
+        res.json({ status: 'healthy', database: 'connected', timestamp: new Date().toISOString() });
     } catch (err) {
-        res.status(503).json({
-            status: 'unhealthy',
-            database: 'disconnected',
-            error: err.message
-        });
+        res.status(503).json({ status: 'unhealthy', database: 'disconnected', error: err.message });
     }
 });
 
-// ================================
-//  CENTRAL ERROR HANDLER
-// ================================
+// ERROR HANDLER
 app.use((err, req, res, next) => {
-    log.error('Unhandled error:', err.stack || err.message);
-    res.status(500).json({
-        success: false,
-        error: 'Internal server error'
-    });
+    log.error('Unhandled:', err.stack || err.message);
+    res.status(500).json({ success: false, error: 'Internal server error' });
 });
 
-// ================================
-//  FRONTEND FALLBACK
-// ================================
+// FRONTEND FALLBACK
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// ================================
-//  START SERVER + GRACEFUL SHUTDOWN
-// ================================
-const server = app.listen(PORT, '0.0.0.0', () => {
-    log.info(`🚀 Server running on port ${PORT}`);
-});
+// START
+const server = app.listen(PORT, '0.0.0.0', () => log.info(`🚀 Server on port ${PORT}`));
 
-// Graceful shutdown
+// GRACEFUL SHUTDOWN
 const shutdown = async () => {
-    log.warn('Received shutdown signal, closing gracefully...');
+    log.info('Shutting down gracefully...');
     server.close(async () => {
-        log.warn('HTTP server closed.');
-        try {
-            await pool.end();
-            log.warn('Database pool closed.');
-        } catch (err) {
-            log.error('Error closing database pool:', err.message);
-        }
+        await pool.end();
         process.exit(0);
     });
-    // Force exit after 10 seconds if not closed
-    setTimeout(() => {
-        log.error('Could not close connections in time, forcefully shutting down');
-        process.exit(1);
-    }, 10000);
+    setTimeout(() => { process.exit(1); }, 10000);
 };
-
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
