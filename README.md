@@ -1,17 +1,18 @@
 # Demoportfolio
-Mobile Web app powered by termux 
-
 ---
 
 📊 UserFlow – User Management Dashboard
 
 UserFlow is a simple web application that lets you manage a list of users. You can add, view, edit, and delete user profiles. It's a clean, responsive dashboard built as a portfolio project to demonstrate full‑stack development skills.
 
+
 ---
 
 ✨ Features
 
 · View all users – See a list of everyone in the system, with their name, email, and a unique ID.
+
+
 · Add new users – Fill in a name and email, then click "Add User" to create a new profile.
 · Edit users – Click the "Edit" button next to any user to update their name or email.
 · Delete users – Remove a user from the system with the "Delete" button (with a confirmation prompt).
