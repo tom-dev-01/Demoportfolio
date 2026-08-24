@@ -7,8 +7,6 @@ Mobile Web app powered by termux
 
 UserFlow is a simple web application that lets you manage a list of users. You can add, view, edit, and delete user profiles. It's a clean, responsive dashboard built as a portfolio project to demonstrate full‑stack development skills.
 
-https://demoportfolio-2.onrender.com (replace with your own screenshot later)
-
 ---
 
 ✨ Features
