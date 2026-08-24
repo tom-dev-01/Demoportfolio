@@ -222,9 +222,10 @@
     }
 
     async function fetchUsers() {
-        const container = document.getElementById('users-container');
-        container.innerHTML = `<div class="loading">Loading users...</div>`;
-
+    console.log('🔁 fetchUsers called');   // 👈 add this
+    const container = document.getElementById('users-container');
+    const container = document.getElementById('users-container');
+    container.innerHTML = `<div class="loading">Loading users...</div>`;
         try {
             const data = await apiRequest(API_URL);
             const users = Array.isArray(data) ? data : (data.users || []);
