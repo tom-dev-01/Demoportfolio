@@ -70,7 +70,7 @@ npm install
 Create a .env file in the root directory and add your database connection string:
 
 ```
-DATABASE_URL=postgresql://username:password@host:port/database
+DATABASE_URL=mysql://avnadmin:YOUR_PASSWORD@mysql-121dc750-thomasomollo01-5781.l.aivencloud.com:24024/defaultdb?ssl-mode=REQUIRE
 ```
 
 4. Run the server locally
