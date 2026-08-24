@@ -86,8 +86,19 @@ function splitName(fullName) {
 //  VALIDATION
 // ================================
 const validateUser = () => [
-    body('name').trim().isLength({ min: 1, max: 255 }).escape(),
-    body('email').trim().isEmail().normalizeEmail().isLength({ max: 255 }),
+    body('name')
+        .trim()
+        .notEmpty().withMessage('Full name is required (e.g. "John Doe")')
+        .isLength({ min: 2, max: 255 }).withMessage('Name must be between 2 and 255 characters')
+        .matches(/^[a-zA-Z\s\-']+$/).withMessage('Name can only contain letters, spaces, hyphens and apostrophes')
+        .escape(),
+
+    body('email')
+        .trim()
+        .notEmpty().withMessage('Email is required (e.g. someone@gmail.com)')
+        .isEmail().withMessage('Please enter a valid email address (e.g. someone@gmail.com)')
+        .normalizeEmail()
+        .isLength({ max: 255 }).withMessage('Email is too long')
 ];
 
 const handleValidation = (req, res, next) => {
