@@ -73,23 +73,46 @@
     <nav class="navbar">
         <div class="logo">User<span>Flow</span></div>
         <div class="status">
-            <div class="status-item"><span class="status-label">API</span><span class="status-dot online" id="apiDot"></span><span class="status-value" id="apiStatus">Checking...</span></div>
-            <div class="status-item"><span class="status-label">System</span><span class="status-dot online" id="systemDot"></span><span class="status-value" id="systemStatus">Online</span></div>
+            <div class="status-item">
+                <span class="status-label">API</span>
+                <span class="status-dot online" id="apiDot"></span>
+                <span class="status-value" id="apiStatus">Checking...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">System</span>
+                <span class="status-dot online" id="systemDot"></span>
+                <span class="status-value" id="systemStatus">Online</span>
+            </div>
         </div>
     </nav>
 
     <div class="stats">
-        <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-number" id="totalUsers">0</div></div>
-        <div class="stat-card"><div class="stat-label">Active</div><div class="stat-number">✅</div></div>
-        <div class="stat-card"><div class="stat-label">Last added</div><div class="stat-number" id="lastAdded">—</div></div>
+        <div class="stat-card">
+            <div class="stat-label">Total Users</div>
+            <div class="stat-number" id="totalUsers">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Active</div>
+            <div class="stat-number">✅</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Last added</div>
+            <div class="stat-number" id="lastAdded">—</div>
+        </div>
     </div>
 
     <div class="card">
         <div class="card-title">➕ Add New User</div>
         <div class="card-sub">Create a new user profile in the system.</div>
         <form id="addUserForm" class="form-row">
-            <div class="form-group"><label for="nameInput">Full Name</label><input type="text" id="nameInput" placeholder="full_name" required></div>
-            <div class="form-group"><label for="emailInput">Email</label><input type="email" id="emailInput" placeholder="email@gmail.com" required></div>
+            <div class="form-group">
+                <label for="nameInput">Full Name</label>
+                <input type="text" id="nameInput" placeholder="John Doe" required>
+            </div>
+            <div class="form-group">
+                <label for="emailInput">Email</label>
+                <input type="email" id="emailInput" placeholder="someone@gmail.com" required>
+            </div>
             <button type="submit" class="btn btn-primary" id="addUserButton">+ Add User</button>
         </form>
         <div id="addMessage"></div>
@@ -98,11 +121,14 @@
     <div class="card">
         <div class="card-title">📋 User Directory</div>
         <div class="card-sub">Manage existing users and their information.</div>
-        <div id="users-container" class="user-list"><div class="loading">Loading users...</div></div>
+        <div id="users-container" class="user-list">
+            <div class="loading">Loading users...</div>
+        </div>
     </div>
 </div>
 
 <script>
+    // Same origin – works because Express serves the frontend
     const API_BASE_URL = '';
     const API_URL = `${API_BASE_URL}/api/users`;
     const HEALTH_URL = `${API_BASE_URL}/health`;
@@ -110,44 +136,60 @@
     async function apiRequest(url, options = {}) {
         const response = await fetch(url, {
             ...options,
-            headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }
+            headers: {
+                'Content-Type': 'application/json',
+                ...(options.headers || {})
+            }
         });
+
         const contentType = response.headers.get('content-type') || '';
         let data;
+
         if (contentType.includes('application/json')) {
             data = await response.json();
         } else {
             const text = await response.text();
             throw new Error(`Server returned invalid response (${response.status}): ${text.substring(0, 150)}`);
         }
+
         if (!response.ok) {
+            // Prefer detailed validation messages when available
+            if (data.details && Array.isArray(data.details) && data.details.length > 0) {
+                throw new Error(data.details.join(' | '));
+            }
             throw new Error(data.error || data.message || `Request failed with status ${response.status}`);
         }
+
         return data;
     }
 
     function escapeHTML(v) {
-        return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+        return String(v)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     }
 
     function getUserFullName(user) {
         if (user.name && user.name.trim() !== '') return user.name.trim();
-        const fn = user.first_name || '', ln = user.last_name || '';
+        const fn = user.first_name || '';
+        const ln = user.last_name || '';
         return `${fn} ${ln}`.trim() || 'Unknown User';
     }
 
     function getUserInitials(user) {
         const full = getUserFullName(user);
         if (full === 'Unknown User') return 'U';
-        const parts = full.split(' ');
-        let initials = parts.map(p => p.charAt(0).toUpperCase()).join('');
-        return initials.substring(0,2) || 'U';
+        const parts = full.split(/\s+/);
+        return parts.map(p => p.charAt(0).toUpperCase()).join('').substring(0, 2) || 'U';
     }
 
     function showMessage(msg, type = 'success') {
         const div = document.getElementById('addMessage');
-        div.innerHTML = `<div class="message ${type}">${type === 'success' ? '✓' : '❌'} ${escapeHTML(msg)}</div>`;
-        setTimeout(() => div.innerHTML = '', 5000);
+        div.innerHTML = `<div class="message \( {type}"> \){type === 'success' ? '✓' : '❌'} ${escapeHTML(msg)}</div>`;
+        setTimeout(() => div.innerHTML = '', 6000);
     }
 
     function updateStatusDot(elId, connected) {
@@ -158,11 +200,19 @@
         try {
             const resp = await fetch(HEALTH_URL);
             if (!resp.ok) throw new Error('Unavailable');
+
             const data = await resp.json();
+
             document.getElementById('apiStatus').textContent = 'Connected';
             updateStatusDot('apiDot', true);
-            document.getElementById('systemStatus').textContent = data.database === 'connected' ? 'Active' : 'Online';
-            updateStatusDot('systemDot', data.database === 'connected');
+
+            if (data.database === 'connected') {
+                document.getElementById('systemStatus').textContent = 'Active';
+                updateStatusDot('systemDot', true);
+            } else {
+                document.getElementById('systemStatus').textContent = 'DB Issue';
+                updateStatusDot('systemDot', false);
+            }
         } catch (e) {
             document.getElementById('apiStatus').textContent = 'Offline';
             updateStatusDot('apiDot', false);
@@ -177,23 +227,32 @@
 
         try {
             const data = await apiRequest(API_URL);
-            let users = Array.isArray(data) ? data : (data.users || []);
-            if (!Array.isArray(users)) throw new Error('Unexpected API response');
+            const users = Array.isArray(data) ? data : (data.users || []);
 
-            // Update Stats
+            if (!Array.isArray(users)) {
+                throw new Error('Unexpected API response format');
+            }
+
+            // Update stats
             document.getElementById('totalUsers').textContent = users.length;
 
-            // Find last added user (by created_at)
+            // Last added user
             let lastAddedName = '—';
             if (users.length > 0) {
-                const sorted = [...users].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                const latest = sorted[0];
-                if (latest) lastAddedName = getUserFullName(latest);
+                const sorted = [...users].sort((a, b) => {
+                    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+                });
+                lastAddedName = getUserFullName(sorted[0]);
             }
-            document.getElementById('lastAdded').textContent = lastAddedName !== '—' ? lastAddedName : '—';
+            document.getElementById('lastAdded').textContent = lastAddedName;
 
             if (users.length === 0) {
-                container.innerHTML = `<div class="empty-state"><div style="font-size:42px">📭</div><strong>No users yet</strong><p>Add your first user to get started.</p></div>`;
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size:42px">📭</div>
+                        <strong>No users yet</strong>
+                        <p>Add your first user to get started.</p>
+                    </div>`;
                 return;
             }
 
@@ -202,7 +261,8 @@
                 const safeName = escapeHTML(fullName);
                 const safeEmail = escapeHTML(user.email || '');
                 const initials = getUserInitials(user);
-                const id = user.id || '?';
+                const id = user.id;
+
                 return `
                     <div class="user-item" data-id="${id}">
                         <div class="user-info">
@@ -219,8 +279,8 @@
                         </div>
                         <div id="edit-form-${id}" class="edit-form hidden">
                             <div class="form-group">
-                                <input type="text" id="edit-name-${id}" value="${safeName}" placeholder="Name">
-                                <input type="email" id="edit-email-${id}" value="${safeEmail}" placeholder="Email">
+                                <input type="text" id="edit-name-\( {id}" value=" \){safeName}" placeholder="Full Name">
+                                <input type="email" id="edit-email-\( {id}" value=" \){safeEmail}" placeholder="Email">
                                 <button class="btn btn-success" onclick="updateUser(${id})">💾 Save</button>
                                 <button class="btn btn-danger" onclick="cancelEdit(${id})">Cancel</button>
                             </div>
@@ -231,57 +291,105 @@
         } catch (err) {
             document.getElementById('totalUsers').textContent = '0';
             document.getElementById('lastAdded').textContent = '—';
-            container.innerHTML = `<div class="error">❌ Unable to load users.<br><br>${escapeHTML(err.message)}</div>`;
+            container.innerHTML = `
+                <div class="error">
+                    ❌ Unable to load users.<br><br>
+                    ${escapeHTML(err.message)}
+                </div>`;
         }
     }
 
-    document.getElementById('addUserForm').addEventListener('submit', async function(e) {
+    // Add User
+    document.getElementById('addUserForm').addEventListener('submit', async function (e) {
         e.preventDefault();
+
         const nameInput = document.getElementById('nameInput');
         const emailInput = document.getElementById('emailInput');
         const button = document.getElementById('addUserButton');
-        const name = nameInput.value.trim(), email = emailInput.value.trim();
-        if (!name || !email) { showMessage('Name and email are required.', 'error'); return; }
 
-        button.disabled = true; button.textContent = 'Adding...';
+        const name = nameInput.value.trim();
+        const email = emailInput.value.trim();
+
+        if (!name || !email) {
+            showMessage('Name and email are required.', 'error');
+            return;
+        }
+
+        button.disabled = true;
+        button.textContent = 'Adding...';
+
         try {
-            const data = await apiRequest(API_URL, { method: 'POST', body: JSON.stringify({ name, email }) });
+            const data = await apiRequest(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ name, email })
+            });
+
             showMessage(data.message || 'User added successfully', 'success');
-            nameInput.value = ''; emailInput.value = '';
+            nameInput.value = '';
+            emailInput.value = '';
             await fetchUsers();
-        } catch (err) { showMessage(err.message, 'error');
-        } finally { button.disabled = false; button.textContent = '+ Add User'; }
+        } catch (err) {
+            showMessage(err.message, 'error');
+        } finally {
+            button.disabled = false;
+            button.textContent = '+ Add User';
+        }
     });
 
+    // Edit helpers
     function editUser(id) {
         const form = document.getElementById(`edit-form-${id}`);
         if (!form) return;
+
+        // Close all other edit forms
         document.querySelectorAll('.edit-form').forEach(f => f.classList.add('hidden'));
         form.classList.toggle('hidden');
     }
-    function cancelEdit(id) { document.getElementById(`edit-form-${id}`)?.classList.add('hidden'); }
+
+    function cancelEdit(id) {
+        document.getElementById(`edit-form-${id}`)?.classList.add('hidden');
+    }
 
     async function updateUser(id) {
-        const nameInput = document.getElementById(`edit-name-${id}`), emailInput = document.getElementById(`edit-email-${id}`);
+        const nameInput = document.getElementById(`edit-name-${id}`);
+        const emailInput = document.getElementById(`edit-email-${id}`);
         if (!nameInput || !emailInput) return;
-        const name = nameInput.value.trim(), email = emailInput.value.trim();
-        if (!name || !email) { alert('Name and email are required.'); return; }
+
+        const name = nameInput.value.trim();
+        const email = emailInput.value.trim();
+
+        if (!name || !email) {
+            alert('Name and email are required.');
+            return;
+        }
+
         try {
-            const data = await apiRequest(`${API_URL}/${id}`, { method: 'PUT', body: JSON.stringify({ name, email }) });
+            const data = await apiRequest(`\( {API_URL}/ \){id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ name, email })
+            });
             alert(`✓ ${data.message || 'User updated successfully'}`);
             await fetchUsers();
-        } catch (err) { alert(`❌ ${err.message}`); }
+        } catch (err) {
+            alert(`❌ ${err.message}`);
+        }
     }
 
     async function deleteUser(id) {
         if (!confirm('Are you sure you want to delete this user?')) return;
+
         try {
-            const data = await apiRequest(`${API_URL}/${id}`, { method: 'DELETE' });
+            const data = await apiRequest(`\( {API_URL}/ \){id}`, {
+                method: 'DELETE'
+            });
             alert(`✓ ${data.message || 'User deleted successfully'}`);
             await fetchUsers();
-        } catch (err) { alert(`❌ ${err.message}`); }
+        } catch (err) {
+            alert(`❌ ${err.message}`);
+        }
     }
 
+    // Initialize
     document.addEventListener('DOMContentLoaded', async () => {
         await checkAPI();
         await fetchUsers();
