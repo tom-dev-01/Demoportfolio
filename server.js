@@ -326,20 +326,11 @@ const handleValidation =
 // ROOT API INFORMATION
 // ================================
 
-app.get("/", (req, res) => {
-
-    res.json({
-        success: true,
-
-        message:
-            "UserFlow API is running",
-
-        endpoints: {
-            health: "/health",
-            users: "/api/users"
-        }
-    });
-
+// ================================
+// FRONTEND
+// ================================
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // ================================
