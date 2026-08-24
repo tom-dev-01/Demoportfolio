@@ -224,84 +224,83 @@
         }
     }
 
-    async function fetchUsers() {
-    console.log('🔁 fetchUsers called');   // 👈 add this
-    const container = document.getElementById('users-container');
+async function fetchUsers() {
+    console.log('🔁 fetchUsers called');
     const container = document.getElementById('users-container');
     container.innerHTML = `<div class="loading">Loading users...</div>`;
-        try {
-            const data = await apiRequest(API_URL);
-            const users = Array.isArray(data) ? data : (data.users || []);
+    try {
+        const data = await apiRequest(API_URL);
+        const users = Array.isArray(data) ? data : (data.users || []);
 
-            if (!Array.isArray(users)) {
-                throw new Error('Unexpected API response format');
-            }
+        if (!Array.isArray(users)) {
+            throw new Error('Unexpected API response format');
+        }
 
-            // Update stats
-            document.getElementById('totalUsers').textContent = users.length;
+        // Update stats
+        document.getElementById('totalUsers').textContent = users.length;
 
-            // Last added user
-            let lastAddedName = '—';
-            if (users.length > 0) {
-                const sorted = [...users].sort((a, b) => {
-                    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
-                });
-                lastAddedName = getUserFullName(sorted[0]);
-            }
-            document.getElementById('lastAdded').textContent = lastAddedName;
+        // Last added user
+        let lastAddedName = '—';
+        if (users.length > 0) {
+            const sorted = [...users].sort((a, b) => {
+                return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+            });
+            lastAddedName = getUserFullName(sorted[0]);
+        }
+        document.getElementById('lastAdded').textContent = lastAddedName;
 
-            if (users.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div style="font-size:42px">📭</div>
-                        <strong>No users yet</strong>
-                        <p>Add your first user to get started.</p>
-                    </div>`;
-                return;
-            }
+        if (users.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div style="font-size:42px">📭</div>
+                    <strong>No users yet</strong>
+                    <p>Add your first user to get started.</p>
+                </div>`;
+            return;
+        }
 
-            container.innerHTML = users.map(user => {
-                const fullName = getUserFullName(user);
-                const safeName = escapeHTML(fullName);
-                const safeEmail = escapeHTML(user.email || '');
-                const initials = getUserInitials(user);
-                const id = user.id;
+        container.innerHTML = users.map(user => {
+            const fullName = getUserFullName(user);
+            const safeName = escapeHTML(fullName);
+            const safeEmail = escapeHTML(user.email || '');
+            const initials = getUserInitials(user);
+            const id = user.id;
 
-                return `
-                    <div class="user-item" data-id="${id}">
-                        <div class="user-info">
-                            <div class="avatar">${escapeHTML(initials)}</div>
-                            <div class="user-details">
-                                <div class="user-name">${safeName}</div>
-                                <div class="user-email">${safeEmail}</div>
-                                <span class="user-id">USER #${id}</span>
-                            </div>
-                        </div>
-                        <div class="user-actions">
-                            <button class="btn btn-warning" onclick="editUser(${id})">✏️ Edit</button>
-                            <button class="btn btn-danger" onclick="deleteUser(${id})">🗑 Delete</button>
-                        </div>
-                        <div id="edit-form-${id}" class="edit-form hidden">
-                            <div class="form-group">
-                                <input type="text" id="edit-name-\( {id}" value=" \){safeName}" placeholder="Full Name">
-                                <input type="email" id="edit-email-\( {id}" value=" \){safeEmail}" placeholder="Email">
-                                <button class="btn btn-success" onclick="updateUser(${id})">💾 Save</button>
-                                <button class="btn btn-danger" onclick="cancelEdit(${id})">Cancel</button>
-                            </div>
+            return `
+                <div class="user-item" data-id="${id}">
+                    <div class="user-info">
+                        <div class="avatar">${escapeHTML(initials)}</div>
+                        <div class="user-details">
+                            <div class="user-name">${safeName}</div>
+                            <div class="user-email">${safeEmail}</div>
+                            <span class="user-id">USER #${id}</span>
                         </div>
                     </div>
-                `;
-            }).join('');
-        } catch (err) {
-            document.getElementById('totalUsers').textContent = '0';
-            document.getElementById('lastAdded').textContent = '—';
-            container.innerHTML = `
-                <div class="error">
-                    ❌ Unable to load users.<br><br>
-                    ${escapeHTML(err.message)}
-                </div>`;
-        }
+                    <div class="user-actions">
+                        <button class="btn btn-warning" onclick="editUser(${id})">✏️ Edit</button>
+                        <button class="btn btn-danger" onclick="deleteUser(${id})">🗑 Delete</button>
+                    </div>
+                    <div id="edit-form-${id}" class="edit-form hidden">
+                        <div class="form-group">
+                            <input type="text" id="edit-name-${id}" value="${safeName}" placeholder="Full Name">
+                            <input type="email" id="edit-email-${id}" value="${safeEmail}" placeholder="Email">
+                            <button class="btn btn-success" onclick="updateUser(${id})">💾 Save</button>
+                            <button class="btn btn-danger" onclick="cancelEdit(${id})">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (err) {
+        document.getElementById('totalUsers').textContent = '0';
+        document.getElementById('lastAdded').textContent = '—';
+        container.innerHTML = `
+            <div class="error">
+                ❌ Unable to load users.<br><br>
+                ${escapeHTML(err.message)}
+            </div>`;
     }
+}
 
     // Add User
     document.getElementById('addUserForm').addEventListener('submit', async function (e) {
