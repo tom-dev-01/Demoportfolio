@@ -65,7 +65,7 @@ app.use(compression());
 // ================================
 
 const allowedOrigins = [
-    "https://demoportfolio-frontend.onrender.com",
+    "https://demoportfolio-2.onrender.com",
     "https://olio-2.onrender.com",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
